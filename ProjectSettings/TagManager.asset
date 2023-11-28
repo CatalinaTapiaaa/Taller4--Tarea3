@@ -4,10 +4,8 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Vertical
-  - Horizontal
-  - Lateral Derecha
-  - Lateral Izquierda
+  - Central
+  - Ingrediente
   layers:
   - Default
   - TransparentFX

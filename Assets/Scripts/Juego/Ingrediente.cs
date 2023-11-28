@@ -10,13 +10,12 @@ public class Ingrediente : MonoBehaviour
     [Space]
     public float velocidad;
     public string direccion;
-    public string tagCentro;
     public bool activar;
+    public bool noMover;
 
-    GameObject[] target;
+    GameObject target;
     int targetAleatorio;
 
-    bool noMover;
 
     void Start()
     {
@@ -24,17 +23,16 @@ public class Ingrediente : MonoBehaviour
         swipe = gameObjectManager.GetComponent<Swipe>();
         nivel = gameObjectManager.GetComponent<NivelManager>();
 
-        target = GameObject.FindGameObjectsWithTag(tagCentro);
-        targetAleatorio = Random.Range(0, target.Length);
+        target = GameObject.FindGameObjectWithTag("Central");
     }
 
     void Update()
     {
         if (!noMover)
         {
-            transform.position = Vector3.MoveTowards(transform.position, target[targetAleatorio].transform.position, velocidad * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, target.transform.position, velocidad * Time.deltaTime);
 
-            if (transform.position == target[targetAleatorio].transform.position)
+            if (transform.position == target.transform.position)
             {
                 nivel.activarTemporizador = true;
                 activar = true;
@@ -63,5 +61,10 @@ public class Ingrediente : MonoBehaviour
                 }
             }               
         }
-    }      
+    }
+
+    public void Destroy()
+    {
+        Destroy(gameObject);
+    }
 }

@@ -11,6 +11,7 @@ public class NivelManager : MonoBehaviour
     public Image barra;
     public float velocidadTiempo;
     public bool activarTemporizador;
+    bool desactivarTemporizador;
 
     [Header("Derrota")]
     public GameObject panelMenu;
@@ -18,27 +19,49 @@ public class NivelManager : MonoBehaviour
     public Transform centro;
     public bool desactivar;
 
+    [Header("Frenetico")]
+    public Animator aniCamara;
+    public Transform camara;
+    public Transform posicionCamara;
+    public float velocidad;
+    public bool comer;
+
     PuntuacionManager puntuacionManager;
     float t = 100;
 
-    void Start()
-    {
-        puntuacionManager = gameObject.GetComponent<PuntuacionManager>();
-    }
     void Update()
     {
-        if (activarTemporizador)
+        if (!desactivarTemporizador)
         {
-            t -= velocidadTiempo * Time.deltaTime;
-        }
-        if (!activarTemporizador)
-        {
-            t += 50 * Time.deltaTime;
-        }
+            if (activarTemporizador)
+            {
+                t -= velocidadTiempo * Time.deltaTime;
+            }
+            if (!activarTemporizador)
+            {
+                t += 50 * Time.deltaTime;
+            }
+            if (t <= 0)
+            {
+                Derrota();
+                desactivarTemporizador = true;
+            }
+        }       
 
-        if (t == 0)
+        if (comer)
         {
-            Derrota();
+            camara.position = Vector3.MoveTowards(camara.position, posicionCamara.position, velocidad * Time.deltaTime);
+            aniCamara.SetBool("Activar", true);
+            GameObject[] items = GameObject.FindGameObjectsWithTag("Ingrediente");
+            foreach (var item in items)
+            {
+                Rigidbody itemRigidbody = item.GetComponent<Rigidbody>();
+
+                if (itemRigidbody != null)
+                {
+                    itemRigidbody.useGravity = true;
+                }
+            }
         }
 
         barra.fillAmount = t / 100;
@@ -86,20 +109,22 @@ public class NivelManager : MonoBehaviour
             Instantiate(ingredientes[aleatorio], pivotsSpawn[7].position, Quaternion.identity);
         }
 
-        puntuacionManager.SumarPuntaje();
         desactivar = false;
     }  
     public void Derrota()
     {
         Debug.Log("Derrota");
-        transform.position += new Vector3(0, 0, -0.5f);
-        StartCoroutine(AbrirMenu());
         desactivar = false;
-    }  
-    IEnumerator AbrirMenu()
+        desactivarTemporizador = true;
+        transform.position += new Vector3(0, 0, -0.5f);
+        StartCoroutine(Frenetico());
+    }
+
+    IEnumerator Frenetico()
     {
         Instantiate(pan, centro.position, Quaternion.identity);
-        yield return new WaitForSeconds(1);
-        panelMenu.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+        comer = true;
     }
+
 }
